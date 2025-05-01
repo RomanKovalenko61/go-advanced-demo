@@ -5,13 +5,23 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sync"
 )
 
 func main() {
 	code := make(chan int)
+	var wg sync.WaitGroup
 	for range 10 {
-		go getHttpCode(code)
+		wg.Add(1)
+		go func() {
+			getHttpCode(code)
+			wg.Done()
+		}()
 	}
+	go func() {
+		wg.Wait()
+		close(code)
+	}()
 	for res := range code {
 		fmt.Printf("Код: %d\n", res)
 	}

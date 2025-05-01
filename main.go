@@ -2,41 +2,29 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"log"
-	"net/http"
-	"sync"
 )
 
 func main() {
-	code := make(chan int)
-	var wg sync.WaitGroup
-	for range 10 {
-		wg.Add(1)
-		go func() {
-			getHttpCode(code)
-			wg.Done()
-		}()
+	arr := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
+	numGoriutines := 3
+	res := make(chan int, numGoriutines)
+	partSize := len(arr) / numGoriutines
+	for i := range numGoriutines {
+		start := i * partSize
+		end := start + partSize
+		go sumPart(res, arr[start:end])
 	}
-	go func() {
-		wg.Wait()
-		close(code)
-	}()
-	for res := range code {
-		fmt.Printf("Код: %d\n", res)
+	totalSum := 0
+	for range numGoriutines {
+		totalSum += <-res
 	}
+	fmt.Printf("Итог вычисления: %v", totalSum)
 }
 
-func getHttpCode(codeCh chan int) {
-	resp, err := http.Get("https://google.com")
-	if err != nil {
-		log.Fatal(err)
+func sumPart(ch chan int, slice []int) {
+	sum := 0
+	for _, v := range slice {
+		sum += v
 	}
-	defer resp.Body.Close()
-	_, err = io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	codeCh <- resp.StatusCode
-	fmt.Println("Готово!")
+	ch <- sum
 }

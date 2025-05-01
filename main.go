@@ -1,19 +1,17 @@
 package main
 
-type User struct {
-	Name string
-}
+import (
+	"fmt"
+	"time"
+)
 
 func main() {
-	age := getAge()
-	canDrink(age)
+	go printHi()
+	go fmt.Println("Привет из main")
+	go fmt.Println("Привет из main 2")
+	time.Sleep(time.Second)
 }
 
-func canDrink(age *int) bool {
-	return *age >= 18
-}
-
-func getAge() *int {
-	age := 18
-	return &age
+func printHi() {
+	fmt.Println("Привет из gr")
 }

@@ -5,15 +5,21 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 )
 
 func main() {
 	t := time.Now()
+	var wg sync.WaitGroup
 	for range 10 {
-		go getHttpCode()
+		wg.Add(1)
+		go func() {
+			getHttpCode()
+			wg.Done()
+		}()
 	}
-	time.Sleep(time.Millisecond * 1100)
+	wg.Wait()
 	fmt.Println(time.Since(t))
 }
 

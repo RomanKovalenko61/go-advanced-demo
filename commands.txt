@@ -1,0 +1,1 @@
+go run -gcflags '-m -l' main.go

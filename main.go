@@ -2,16 +2,30 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"log"
+	"net/http"
 	"time"
 )
 
 func main() {
-	go printHi()
-	go fmt.Println("Привет из main")
-	go fmt.Println("Привет из main 2")
-	time.Sleep(time.Second)
+	t := time.Now()
+	for range 10 {
+		go getHttpCode()
+	}
+	time.Sleep(time.Millisecond * 1100)
+	fmt.Println(time.Since(t))
 }
 
-func printHi() {
-	fmt.Println("Привет из gr")
+func getHttpCode() {
+	resp, err := http.Get("https://google.com")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(resp.StatusCode, len(body))
 }

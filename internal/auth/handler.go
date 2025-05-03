@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"go/adv-demo/configs"
 	"go/adv-demo/pkg/req"
-	"go/adv-demo/pkg/resp"
 	"net/http"
 )
 
@@ -34,11 +33,8 @@ func (handler *AuthHandler) Login() http.HandlerFunc {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println(body)
-		data := LoginResponse{
-			Token: "123",
-		}
-		resp.ResponseJSON(w, data, http.StatusOK)
+		email, err := handler.AuthService.Login(body.Email, body.Password)
+		fmt.Println(email, err)
 	}
 }
 

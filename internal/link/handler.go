@@ -3,6 +3,7 @@ package link
 import (
 	"fmt"
 	"go/adv-demo/configs"
+	"go/adv-demo/internal/stat"
 	"go/adv-demo/pkg/middleware"
 	"go/adv-demo/pkg/req"
 	"go/adv-demo/pkg/resp"
@@ -14,16 +15,19 @@ import (
 
 type LinkHandlerDeps struct {
 	LinkRepository *LinkRepository
+	StatRepository *stat.StatRepository
 	Config         *configs.Config
 }
 
 type LinkHandler struct {
 	LinkRepository *LinkRepository
+	StatRepository *stat.StatRepository
 }
 
 func NewLinkHandler(router *http.ServeMux, deps LinkHandlerDeps) {
 	handler := &LinkHandler{
 		LinkRepository: deps.LinkRepository,
+		StatRepository: deps.StatRepository,
 	}
 	router.HandleFunc("POST /link", handler.Create())
 	router.HandleFunc("GET /{hash}", handler.GoTO())
@@ -63,6 +67,7 @@ func (handler *LinkHandler) GoTO() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
+		handler.StatRepository.AddClick(link.ID)
 		http.Redirect(w, r, link.Url, http.StatusTemporaryRedirect)
 	}
 }

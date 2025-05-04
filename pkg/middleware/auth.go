@@ -15,6 +15,7 @@ const (
 )
 
 func writeUnauthed(w http.ResponseWriter) {
+	//http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 	w.WriteHeader(http.StatusUnauthorized)
 	w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
 }

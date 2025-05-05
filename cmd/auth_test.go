@@ -36,6 +36,12 @@ func initData(db *gorm.DB) {
 	})
 }
 
+func removeData(db *gorm.DB) {
+	db.Unscoped().
+		Where("email = ?", "a2@a.ru").
+		Delete(&user.User{})
+}
+
 func TestLoginSuccess(t *testing.T) {
 	//Prepare
 	db := initDb()
@@ -68,9 +74,14 @@ func TestLoginSuccess(t *testing.T) {
 	if respData.Token == "" {
 		t.Fatal("Empty token")
 	}
+	removeData(db)
 }
 
 func TestLoginFailed(t *testing.T) {
+	//Prepare
+	db := initDb()
+	initData(db)
+
 	ts := httptest.NewServer(App())
 	defer ts.Close()
 
@@ -86,4 +97,5 @@ func TestLoginFailed(t *testing.T) {
 	if resp.StatusCode != http.StatusUnauthorized {
 		t.Fatalf("Expected %d got %d", http.StatusUnauthorized, resp.StatusCode)
 	}
+	removeData(db)
 }
